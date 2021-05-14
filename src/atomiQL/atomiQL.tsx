@@ -9,7 +9,7 @@ const useQuery = (url: string, query: string): [any, boolean, boolean] => {
   const [fetchData, setFetchData] = useState({
     loading: true,
     hasError: false,
-  });
+  })
   const [atomData, setAtom] = useAtom(newAtom)
   const { loading, hasError } = fetchData;
 
