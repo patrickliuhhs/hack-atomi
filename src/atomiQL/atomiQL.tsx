@@ -1,31 +1,40 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { request } from 'graphql-request'
 import { atom, useAtom } from 'jotai';
+import { AppContext } from './atomiContext';
 
-const newAtom = atom(null);
+const newAtom = atom({
+  loading: true,
+  data: null,
+  hasError: false
+});
 
-const useQuery = (url: string, query: string): [any, boolean, boolean] => {
-  const [fetchData, setFetchData] = useState({
-    loading: true,
-    hasError: false,
-  })
+const useQuery = (query: string): [any, boolean, boolean] => {
   const [atomData, setAtom] = useAtom(newAtom)
-  const { loading, hasError } = fetchData;
+  const { url } = useContext(AppContext)
+  const { loading, hasError, data } = atomData;
 
   useEffect(() => {
     (async () => {
       try {
         const result = await request(url, query)
-        setAtom(result)
+        setAtom({
+          data: result,
+          loading: false,
+          hasError: false
+        })
       } catch {
-        setFetchData({ ...fetchData, loading: false, hasError: true });
+        setAtom({
+          data: null,
+          loading: false,
+          hasError: true
+        })
       }
     })()
-  }, [url]);
+  }, []);
 
-  if (atomData) return [atomData, false, hasError]
-  return [atomData, loading, hasError];
+  return [data, loading, hasError]
 };
 
 export default useQuery;
